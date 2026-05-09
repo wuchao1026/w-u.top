@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HELLOWORLD</title>
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
@@ -16,7 +22,11 @@
   }
 
   html{scroll-behavior:smooth}
-  body{background:var(--c1);color:#fff;font-family:'Orbitron',monospace;overflow-x:hidden;cursor:none;min-height:100vh}
+  body{background:var(--c1);color:#fff;font-family:'Orbitron',monospace;overflow-x:hidden;cursor:none;min-height:100vh;
+    -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+    -webkit-touch-callout:none}
+  *{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+  img,a{-webkit-user-drag:none;-khtml-user-drag:none;-moz-user-drag:none;-o-user-drag:none;user-drag:none}
 
   /* ========== CURSOR ========== */
   .cursor{position:fixed;width:24px;height:24px;border:2px solid var(--accent);border-radius:50%;pointer-events:none;z-index:99999;
@@ -199,7 +209,81 @@
   }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false" oncopy="return false" oncut="return false" onpaste="return false">
+<noscript><div style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999999"><p style="font-family:monospace;font-size:18px;color:#ff006e;letter-spacing:4px">JAVASCRIPT REQUIRED</p></div></noscript>
+
+<script>
+// ========== ANTI-SCRAPE PROTECTION ==========
+(function(){
+  'use strict';
+
+  // Block right-click
+  document.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+
+  // Block keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    // F12
+    if(e.keyCode === 123) { e.preventDefault(); return false; }
+    // Ctrl+U (view source), Ctrl+S (save), Ctrl+A (select all), Ctrl+P (print)
+    if(e.ctrlKey && [85,83,65,80].includes(e.keyCode)) { e.preventDefault(); return false; }
+    // Ctrl+Shift+I/J/C (DevTools)
+    if(e.ctrlKey && e.shiftKey && [73,74,67].includes(e.keyCode)) { e.preventDefault(); return false; }
+    // Ctrl+Shift+K (Firefox console)
+    if(e.ctrlKey && e.shiftKey && e.keyCode === 75) { e.preventDefault(); return false; }
+    // F11 (fullscreen - optional)
+    if(e.keyCode === 122) { e.preventDefault(); return false; }
+  });
+
+  // Block copy/cut
+  document.addEventListener('copy', e => { e.preventDefault(); return false; });
+  document.addEventListener('cut', e => { e.preventDefault(); return false; });
+
+  // Block drag
+  document.addEventListener('dragstart', e => { e.preventDefault(); return false; });
+
+  // DevTools detection via debugger timing
+  let _devToolsOpen = false;
+  const detect = setInterval(() => {
+    const before = performance.now();
+    debugger;
+    const after = performance.now();
+    if(after - before > 100) {
+      _devToolsOpen = true;
+      document.body.innerHTML = '<div style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999999"><p style="font-family:monospace;font-size:18px;color:#ff006e;letter-spacing:4px">ACCESS DENIED</p></div>';
+      clearInterval(detect);
+    }
+  }, 2000);
+
+  // DevTools detection via window size diff
+  let _w = window.outerWidth - window.innerWidth;
+  let _h = window.outerHeight - window.innerHeight;
+  setInterval(() => {
+    const dw = window.outerWidth - window.innerWidth;
+    const dh = window.outerHeight - window.innerHeight;
+    if((dw > 200 || dh > 200) && !_devToolsOpen) {
+      _devToolsOpen = true;
+      document.body.innerHTML = '<div style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999999"><p style="font-family:monospace;font-size:18px;color:#ff006e;letter-spacing:4px">ACCESS DENIED</p></div>';
+    }
+  }, 3000);
+
+  // Console watermark
+  console.log('%cSTOP', 'color:#ff006e;font-size:48px;font-weight:900');
+  console.log('%cThis is a protected page. Source code extraction is prohibited.', 'color:#00f0ff;font-size:14px');
+
+  // Disable iframe embedding
+  if(window.top !== window.self) {
+    window.top.location = window.self.location;
+  }
+
+  // Block print to PDF
+  window.addEventListener('beforeprint', e => { e.preventDefault(); return false; });
+  if(window.matchMedia) {
+    window.matchMedia('print').addListener(m => {
+      if(m.matches) document.body.style.display = 'none';
+    });
+  }
+})();
+</script>
 
 <!-- Loader -->
 <div class="loader" id="loader">
@@ -331,6 +415,31 @@
 </footer>
 
 <script>
+// ========== ENCODED PAYLOAD ==========
+(function(){
+  var _0x4f2a=['charCodeAt','length','fromCharCode','btoa','atob'];
+  function _dec(s){
+    var r='',k='HWL0D';
+    for(var i=0;i<s.length;i++){
+      r+=String.fromCharCode(s.charCodeAt(i)^k.charCodeAt(i%k.length));
+    }
+    return r;
+  }
+  // Core logic encoded
+  var _payload=[
+    'Y29uc3QgbG9hZGVyRmlsbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsb2FkZXJGaWxsJyk7',
+    'c2V0VGltZW91dCgoKSA9PiBsb2FkZXJGaWxsLnN0eWxlLndpZHRoID0gJzEwMCUnLCAxMDApOw==',
+    'd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ2xvYWQnLCAoKSA9PiB7',
+    'ICBzZXRUaW1lb3V0KCgpID0+IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsb2FkZXInKS5jbGFzc0xpc3QuYWRkKCdkb25lJyksIDE0MDApOw==',
+    'fSk7'
+  ];
+  try{
+    var _decoded=_payload.map(function(s){return atob(s)}).join('\n');
+    new Function(_decoded)();
+  }catch(e){}
+})();
+</script>
+<script>
 // ============ LOADER ============
 const loaderFill = document.getElementById('loaderFill');
 setTimeout(() => loaderFill.style.width = '100%', 100);
@@ -444,7 +553,6 @@ function drawParticles() {
       }
     }
   }
-  // Mouse attract
   for (const p of particles) {
     const dx = mx - p.x, dy = my - p.y;
     const d = Math.sqrt(dx * dx + dy * dy);
@@ -547,6 +655,28 @@ document.addEventListener('mousemove', e => {
     if (particles.length > 150) particles.shift();
   }
 });
+
+// ============ SELF-DEFENDING ============
+(function(){
+  const _orig = document.querySelector('script:last-of-type');
+  if(_orig) {
+    const _check = _orig.textContent.length;
+    setInterval(() => {
+      const _now = document.querySelector('script:last-of-type');
+      if(!_now || _now.textContent.length !== _check) {
+        document.body.innerHTML = '<div style="position:fixed;inset:0;background:#050508;display:flex;align-items:center;justify-content:center;z-index:999999"><p style="font-family:monospace;font-size:18px;color:#ff006e;letter-spacing:4px">TAMPER DETECTED</p></div>';
+      }
+    }, 5000);
+  }
+})();
+
+// ============ WATERMARK OVERLAY ============
+(function(){
+  const wm = document.createElement('div');
+  wm.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;opacity:0.015;';
+  wm.style.backgroundImage = 'repeating-linear-gradient(45deg,transparent,transparent 200px,rgba(255,255,255,0.03) 200px,rgba(255,255,255,0.03) 201px)';
+  document.body.appendChild(wm);
+})();
 
 </script>
 </body>
