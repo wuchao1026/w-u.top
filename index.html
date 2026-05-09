@@ -1,105 +1,553 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hello World</title>
+<title>HELLOWORLD</title>
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    font-family: 'Segoe UI', sans-serif;
-    overflow: hidden;
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --c1:#050508;
+    --accent:#00f0ff;--accent2:#ff006e;--accent3:#8338ec;
+    --border:rgba(255,255,255,0.06);
   }
 
-  .glass-input {
-    width: 800px;                /* 超大宽度 */
-    height: 200px;               /* 超大高度 */
-    padding: 0 40px;             /* 内边距同步放大 */
-    font-size: 60px;             /* 超大字体 */
-    font-weight: 600;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 32px;         /* 圆角同步放大 */
-    outline: none;
-    transition: all 0.4 cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.15);
-    position: relative;
-    overflow: hidden;
-    text-align: center;          /* 让文字居中 */
-  }
+  html{scroll-behavior:smooth}
+  body{background:var(--c1);color:#fff;font-family:'Orbitron',monospace;overflow-x:hidden;cursor:none;min-height:100vh}
 
-  /* 悬停效果 */
-  .glass-input:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
+  /* ========== CURSOR ========== */
+  .cursor{position:fixed;width:24px;height:24px;border:2px solid var(--accent);border-radius:50%;pointer-events:none;z-index:99999;
+    transition:width .2s,height .2s,border-color .2s;mix-blend-mode:difference}
+  .cursor-dot{position:fixed;width:6px;height:6px;background:#fff;border-radius:50%;pointer-events:none;z-index:99999}
+  .cursor.hover{width:60px;height:60px;border-color:var(--accent2)}
 
-  /* 点击效果 */
-  .glass-input:active {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 60px rgba(0, 0, 0, 0.18);
-  }
+  /* ========== LOADER ========== */
+  .loader{position:fixed;inset:0;background:var(--c1);z-index:10000;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;transition:opacity 1s ease,visibility 1s ease}
+  .loader.done{opacity:0;visibility:hidden}
+  .loader-text{font-size:clamp(24px,5vw,48px);font-weight:900;letter-spacing:12px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3),var(--accent));
+    background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:loaderGrad 2s linear infinite}
+  @keyframes loaderGrad{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .loader-bar{width:200px;height:2px;background:var(--border);margin-top:32px;border-radius:2px;overflow:hidden}
+  .loader-bar-fill{width:0;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .8s ease}
 
-  /* 聚焦效果 */
-  .glass-input:focus {
-    border-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
-  }
+  /* ========== LAYERS ========== */
+  #particles{position:fixed;inset:0;z-index:0}
+  #matrix{position:fixed;inset:0;z-index:0;opacity:.03;pointer-events:none}
 
-  /* 内部发光动画 */
-  .glass-input::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -150%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-    animation: shine 2 infinite linear;
-  }
+  .noise{position:fixed;inset:0;z-index:1;opacity:.03;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:128px}
 
-  @keyframes shine {
-    0% { left: -150%; }
-    100% { left: 150%; }
-  }
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--border) 1px,transparent 1px),
+      linear-gradient(90deg,var(--border) 1px,transparent 1px);
+    background-size:80px 80px;
+    mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,black,transparent)}
 
-  /* 底部光带 */
-  .glass-input::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%;
-    height: 6px;                 /* 光带高度放大 */
-    background: linear-gradient(90deg, #4cc9f0, #7209b7);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.6 ease;
-  }
+  .aurora{position:fixed;border-radius:50%;filter:blur(150px);pointer-events:none;z-index:0}
+  .a1{width:700px;height:700px;background:var(--accent);top:-300px;right:-200px;opacity:.08;animation:af 20s ease-in-out infinite}
+  .a2{width:500px;height:500px;background:var(--accent2);bottom:-200px;left:-100px;opacity:.06;animation:af 20s ease-in-out infinite reverse}
+  .a3{width:400px;height:400px;background:var(--accent3);top:30%;left:40%;opacity:.05;animation:af 15s ease-in-out infinite}
+  @keyframes af{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.1)}66%{transform:translate(-30px,40px) scale(.9)}}
 
-  .glass-input:focus::after {
-    transform: scaleX(1);
-  }
+  /* ========== MAIN ========== */
+  main{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
 
-  /* 文字呼吸效果 */
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.85; }
-  }
+  /* ========== HELLOWORLD HERO ========== */
+  .hw-container{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column}
 
-  .glass-input:focus {
-    animation: pulse 3 infinite ease-in-out;
+  .hw-main{font-size:clamp(60px,14vw,180px);font-weight:900;letter-spacing:clamp(4px,1.5vw,20px);line-height:1;
+    position:relative;user-select:none}
+
+  .hw-main .hw{display:inline-block;position:relative;
+    background:linear-gradient(135deg,#fff 0%,var(--accent) 40%,var(--accent2) 70%,var(--accent3) 100%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    background-size:200% 200%;animation:textGrad 8s ease infinite;
+    filter:drop-shadow(0 0 60px rgba(0,240,255,.15)) drop-shadow(0 0 120px rgba(131,56,236,.1))}
+  @keyframes textGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+  /* Glitch layers */
+  .hw-main .hw::before,.hw-main .hw::after{content:'HELLOWORLD';position:absolute;top:0;left:0;width:100%;
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hw-main .hw::before{background:linear-gradient(135deg,var(--accent2),var(--accent));
+    animation:g1 4s infinite;opacity:0}
+  .hw-main .hw::after{background:linear-gradient(135deg,var(--accent),var(--accent3));
+    animation:g2 4s infinite;opacity:0}
+  @keyframes g1{0%,92%,100%{opacity:0;transform:none}93%{opacity:.7;transform:translate(-4px,2px) skewX(-2deg)}94%{opacity:.7;transform:translate(4px,-1px) skewX(1deg)}95%{opacity:0}}
+  @keyframes g2{0%,93%,100%{opacity:0;transform:none}94%{opacity:.5;transform:translate(3px,-2px) skewX(2deg)}95%{opacity:.5;transform:translate(-3px,1px) skewX(-1deg)}96%{opacity:0}}
+
+  /* Scan line */
+  .hw-main::after{content:'';position:absolute;left:-5%;right:-5%;height:2px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    animation:scan 4s ease-in-out infinite;pointer-events:none;opacity:.4}
+  @keyframes scan{0%{top:-10%}50%{top:110%}100%{top:-10%}}
+
+  /* Outline ghost */
+  .hw-outline{font-size:clamp(60px,14vw,180px);font-weight:900;letter-spacing:clamp(4px,1.5vw,20px);line-height:1;
+    position:absolute;
+    -webkit-text-stroke:1px rgba(255,255,255,.04);color:transparent;
+    animation:outlinePulse 6s ease infinite;pointer-events:none}
+  @keyframes outlinePulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.6;transform:scale(1.02)}}
+
+  /* Orbiting ring */
+  .orbit-ring{position:absolute;width:clamp(300px,50vw,700px);height:clamp(300px,50vw,700px);
+    border:1px solid rgba(0,240,255,.06);border-radius:50%;animation:orbitSpin 30s linear infinite}
+  .orbit-ring::before{content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;
+    background:var(--accent);border-radius:50%;box-shadow:0 0 20px var(--accent),0 0 40px var(--accent)}
+  .orbit-ring-2{width:clamp(380px,62vw,860px);height:clamp(380px,62vw,860px);
+    border-color:rgba(255,0,110,.04);animation-duration:45s;animation-direction:reverse}
+  .orbit-ring-2::before{background:var(--accent2);box-shadow:0 0 20px var(--accent2),0 0 40px var(--accent2)}
+  @keyframes orbitSpin{to{transform:rotate(360deg)}}
+
+  /* Floating letters */
+  .float-letters{position:absolute;inset:-60px;pointer-events:none}
+  .float-letter{position:absolute;font-size:14px;font-weight:700;color:rgba(0,240,255,.12);animation:floatL 10s ease-in-out infinite}
+
+  /* Subtitle */
+  .hw-sub{margin-top:40px;font-size:clamp(10px,1.2vw,14px);letter-spacing:clamp(8px,2vw,20px);
+    color:rgba(255,255,255,.2);font-weight:400;animation:fadeUp 1.5s ease 1.5s both}
+
+  /* Decorative lines */
+  .hw-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.1}
+  .hw-line-t{top:-40px;left:10%;right:10%}
+  .hw-line-b{bottom:-40px;left:10%;right:10%}
+  .hw-line-l{width:1px;height:60%;top:20%;left:-40px;
+    background:linear-gradient(180deg,transparent,var(--accent),transparent)}
+  .hw-line-r{width:1px;height:60%;top:20%;right:-40px;
+    background:linear-gradient(180deg,transparent,var(--accent2),transparent)}
+
+  /* Corner marks */
+  .corner{position:absolute;width:20px;height:20px}
+  .corner::before,.corner::after{content:'';position:absolute;background:var(--accent);opacity:.2}
+  .corner-tl{top:-30px;left:-30px}.corner-tl::before{width:20px;height:1px;top:0;left:0}.corner-tl::after{width:1px;height:20px;top:0;left:0}
+  .corner-tr{top:-30px;right:-30px}.corner-tr::before{width:20px;height:1px;top:0;right:0}.corner-tr::after{width:1px;height:20px;top:0;right:0}
+  .corner-bl{bottom:-30px;left:-30px}.corner-bl::before{width:20px;height:1px;bottom:0;left:0}.corner-bl::after{width:1px;height:20px;bottom:0;left:0}
+  .corner-br{bottom:-30px;right:-30px}.corner-br::before{width:20px;height:1px;bottom:0;right:0}.corner-br::after{width:1px;height:20px;bottom:0;right:0}
+
+  /* ========== SCROLL HINT ========== */
+  .scroll-hint{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:8px;
+    animation:fadeUp 1.5s ease 2.5s both}
+  .scroll-hint span{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,.2)}
+  .scroll-arrow{width:1px;height:30px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollP 2s ease infinite}
+  @keyframes scrollP{0%,100%{opacity:.2;transform:scaleY(.4)}50%{opacity:.8;transform:scaleY(1)}}
+
+  /* ========== MARQUEE ========== */
+  .marquee-section{position:relative;z-index:2;overflow:hidden;padding:60px 0;
+    border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .marquee{display:flex;animation:marquee 15s linear infinite;width:max-content}
+  .marquee-item{font-size:clamp(80px,12vw,160px);font-weight:900;white-space:nowrap;padding:0 40px;
+    -webkit-text-stroke:1.5px rgba(255,255,255,.06);color:transparent;transition:all .4s;user-select:none}
+  .marquee-item:hover{-webkit-text-stroke-color:var(--accent);text-shadow:0 0 80px rgba(0,240,255,.2);
+    filter:drop-shadow(0 0 30px rgba(0,240,255,.15))}
+  @keyframes marquee{to{transform:translateX(-50%)}}
+
+  /* ========== SECTION 2 ========== */
+  .section-2{position:relative;z-index:2;padding:120px 48px;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+  .hw-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:800px;width:100%}
+  .hw-cell{padding:48px 32px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.01);
+    backdrop-filter:blur(10px);transition:all .5s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden;cursor:none}
+  .hw-cell::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,240,255,.05),transparent 60%);
+    opacity:0;transition:opacity .4s}
+  .hw-cell:hover{border-color:rgba(0,240,255,.15);transform:translateY(-4px)}
+  .hw-cell:hover::before{opacity:1}
+  .hw-cell-num{font-size:48px;font-weight:900;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hw-cell-label{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.25);margin-top:8px}
+
+  /* ========== 3D TILT CARD ========== */
+  .tilt-wrap{position:relative;z-index:2;padding:80px 48px;display:flex;justify-content:center}
+  .tilt-card{width:clamp(300px,50vw,600px);padding:60px;border:1px solid var(--border);border-radius:24px;
+    background:rgba(255,255,255,.015);backdrop-filter:blur(16px);
+    transform-style:preserve-3d;perspective:1000px;transition:transform .08s ease;cursor:none;position:relative;overflow:hidden}
+  .tilt-card .tilt-glow{position:absolute;inset:0;border-radius:24px;pointer-events:none;opacity:0;transition:opacity .3s}
+  .tilt-card:hover .tilt-glow{opacity:1}
+  .tilt-card h2{font-size:clamp(24px,3vw,36px);font-weight:900;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .tilt-card p{font-family:'Orbitron',monospace;font-size:12px;color:rgba(255,255,255,.3);line-height:2;letter-spacing:1px}
+
+  /* ========== FINAL ========== */
+  .final{position:relative;z-index:2;min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px}
+  .final-text{font-size:clamp(32px,8vw,100px);font-weight:900;letter-spacing:8px;
+    -webkit-text-stroke:1px rgba(255,255,255,.15);color:transparent;
+    transition:all .4s;cursor:none}
+  .final-text:hover{-webkit-text-stroke-color:var(--accent);color:rgba(0,240,255,.05);
+    text-shadow:0 0 100px rgba(0,240,255,.2);letter-spacing:16px}
+
+  /* ========== FOOTER ========== */
+  footer{position:relative;z-index:2;padding:40px 48px;border-top:1px solid var(--border);text-align:center}
+  footer p{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.15)}
+
+  /* ========== ANIMATIONS ========== */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+  .reveal{opacity:0;transform:translateY(40px);transition:all 1s cubic-bezier(.23,1,.32,1)}
+  .reveal.visible{opacity:1;transform:none}
+
+  /* ========== RESPONSIVE ========== */
+  @media(max-width:768px){
+    .hw-grid{grid-template-columns:1fr}
+    section,.section-2,.tilt-wrap{padding:80px 24px}
+    footer{padding:30px 24px}
+    .orbit-ring,.orbit-ring-2{display:none}
   }
 </style>
 </head>
 <body>
-  <input type="text" value="Hello World" class="glass-input">
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="loader-text">HELLOWORLD</div>
+  <div class="loader-bar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+</div>
+
+<!-- Aurora -->
+<div class="aurora a1"></div>
+<div class="aurora a2"></div>
+<div class="aurora a3"></div>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Matrix -->
+<canvas id="matrix"></canvas>
+
+<!-- Particles -->
+<canvas id="particles"></canvas>
+
+<!-- Noise -->
+<div class="noise"></div>
+<div class="grid-bg"></div>
+
+<!-- Main -->
+<main>
+  <div class="hw-container">
+
+    <!-- Orbit rings -->
+    <div class="orbit-ring"></div>
+    <div class="orbit-ring orbit-ring-2"></div>
+
+    <!-- Floating letters -->
+    <div class="float-letters" id="floatLetters"></div>
+
+    <!-- Decorative -->
+    <div class="hw-line hw-line-t"></div>
+    <div class="hw-line hw-line-b"></div>
+    <div class="hw-line hw-line-l"></div>
+    <div class="hw-line hw-line-r"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- Ghost outline -->
+    <div class="hw-outline" aria-hidden="true">HELLOWORLD</div>
+
+    <!-- Main text -->
+    <div class="hw-main">
+      <span class="hw">HELLOWORLD</span>
+    </div>
+
+    <div class="hw-sub">&lt; DIGITAL EXPERIENCE /&gt;</div>
+  </div>
+</main>
+
+<!-- Scroll hint -->
+<div class="scroll-hint">
+  <span>SCROLL</span>
+  <div class="scroll-arrow"></div>
+</div>
+
+<!-- Marquee -->
+<div class="marquee-section">
+  <div class="marquee">
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+  </div>
+</div>
+
+<!-- Stats -->
+<section class="section-2">
+  <div class="hw-grid">
+    <div class="hw-cell reveal">
+      <div class="hw-cell-num" data-target="128">0</div>
+      <div class="hw-cell-label">PROJECTS</div>
+    </div>
+    <div class="hw-cell reveal">
+      <div class="hw-cell-num" data-target="2048">0</div>
+      <div class="hw-cell-label">COMMITS</div>
+    </div>
+    <div class="hw-cell reveal">
+      <div class="hw-cell-num" data-target="365">0</div>
+      <div class="hw-cell-label">DAYS ACTIVE</div>
+    </div>
+    <div class="hw-cell reveal">
+      <div class="hw-cell-num" data-target="99">0</div>
+      <div class="hw-cell-label">PERCENT</div>
+    </div>
+  </div>
+</section>
+
+<!-- Tilt Card -->
+<div class="tilt-wrap">
+  <div class="tilt-card reveal" id="tiltCard">
+    <div class="tilt-glow" id="tiltGlow"></div>
+    <h2>HELLOWORLD</h2>
+    <p>FIRST WORD. FIRST STEP. EVERY JOURNEY BEGINS WITH A SINGLE LINE OF CODE. THIS IS WHERE IT ALL STARTS.</p>
+  </div>
+</div>
+
+<!-- Marquee reverse -->
+<div class="marquee-section">
+  <div class="marquee" style="animation-direction:reverse;animation-duration:20s">
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+    <span class="marquee-item">HELLOWORLD</span>
+  </div>
+</div>
+
+<!-- Final -->
+<div class="final">
+  <div class="final-text" id="finalText">HELLOWORLD</div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>HELLOWORLD &mdash; 2026</p>
+</footer>
+
+<script>
+// ============ LOADER ============
+const loaderFill = document.getElementById('loaderFill');
+setTimeout(() => loaderFill.style.width = '100%', 100);
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('done'), 1400);
+});
+
+// ============ CURSOR ============
+const cursor = document.getElementById('cursor');
+const dot = document.getElementById('cursorDot');
+let mx = 0, my = 0, cx = 0, cy = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx - 3 + 'px';
+  dot.style.top = my - 3 + 'px';
+});
+
+(function animCursor() {
+  cx += (mx - cx) * 0.12;
+  cy += (my - cy) * 0.12;
+  cursor.style.left = cx - 12 + 'px';
+  cursor.style.top = cy - 12 + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+document.querySelectorAll('a,.hw-cell,.tilt-card,.final-text,.marquee-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ============ MATRIX RAIN ============
+const mc = document.getElementById('matrix');
+const mCtx = mc.getContext('2d');
+const fontSize = 14;
+
+function resizeMatrix() { mc.width = innerWidth; mc.height = innerHeight; }
+resizeMatrix();
+
+const chars = 'HELLOWORLD';
+let cols = Math.floor(mc.width / fontSize);
+let drops = Array(cols).fill(1);
+
+function drawMatrix() {
+  mCtx.fillStyle = 'rgba(5,5,8,0.06)';
+  mCtx.fillRect(0, 0, mc.width, mc.height);
+  mCtx.fillStyle = '#00f0ff';
+  mCtx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    mCtx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > mc.height && Math.random() > .975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 50);
+
+// ============ PARTICLES ============
+const pc = document.getElementById('particles');
+const pCtx = pc.getContext('2d');
+let particles = [];
+
+function resizeP() { pc.width = innerWidth; pc.height = innerHeight; }
+resizeP();
+
+window.addEventListener('resize', () => {
+  resizeP(); resizeMatrix();
+  cols = Math.floor(mc.width / fontSize);
+  drops = Array(cols).fill(1);
+});
+
+class P {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * pc.width;
+    this.y = Math.random() * pc.height;
+    this.vx = (Math.random() - .5) * .4;
+    this.vy = (Math.random() - .5) * .4;
+    this.r = Math.random() * 1.5 + .5;
+    this.o = Math.random() * .4 + .1;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > pc.width) this.vx *= -1;
+    if (this.y < 0 || this.y > pc.height) this.vy *= -1;
+  }
+  draw() {
+    pCtx.beginPath();
+    pCtx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    pCtx.fillStyle = `rgba(0,240,255,${this.o})`;
+    pCtx.fill();
+  }
+}
+
+for (let i = 0; i < 70; i++) particles.push(new P());
+
+function drawParticles() {
+  pCtx.clearRect(0, 0, pc.width, pc.height);
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update(); particles[i].draw();
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d < 140) {
+        pCtx.beginPath();
+        pCtx.moveTo(particles[i].x, particles[i].y);
+        pCtx.lineTo(particles[j].x, particles[j].y);
+        pCtx.strokeStyle = `rgba(0,240,255,${.07 * (1 - d / 140)})`;
+        pCtx.lineWidth = .5;
+        pCtx.stroke();
+      }
+    }
+  }
+  // Mouse attract
+  for (const p of particles) {
+    const dx = mx - p.x, dy = my - p.y;
+    const d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 180) {
+      pCtx.beginPath();
+      pCtx.moveTo(mx, my);
+      pCtx.lineTo(p.x, p.y);
+      pCtx.strokeStyle = `rgba(0,240,255,${.12 * (1 - d / 180)})`;
+      pCtx.lineWidth = .7;
+      pCtx.stroke();
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ============ FLOATING LETTERS ============
+const flContainer = document.getElementById('floatLetters');
+const letters = 'HELLOWORLD'.split('');
+letters.forEach((l, i) => {
+  const span = document.createElement('span');
+  span.className = 'float-letter';
+  span.textContent = l;
+  const angle = (i / letters.length) * Math.PI * 2;
+  const radius = 42;
+  span.style.left = 50 + Math.cos(angle) * radius + '%';
+  span.style.top = 50 + Math.sin(angle) * radius + '%';
+  span.style.animationDelay = (i * .4) + 's';
+  span.style.animationDuration = (8 + Math.random() * 4) + 's';
+  flContainer.appendChild(span);
+});
+
+// ============ SCROLL REVEAL ============
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ============ COUNTER ============
+const cObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target, target = +el.dataset.target;
+      let cur = 0; const step = target / 80;
+      const t = setInterval(() => {
+        cur += step;
+        if (cur >= target) { cur = target; clearInterval(t); }
+        el.textContent = Math.floor(cur);
+      }, 18);
+      cObs.unobserve(el);
+    }
+  });
+}, { threshold: .5 });
+document.querySelectorAll('.hw-cell-num').forEach(el => cObs.observe(el));
+
+// ============ TILT ============
+const tiltCard = document.getElementById('tiltCard');
+const tiltGlow = document.getElementById('tiltGlow');
+
+tiltCard.addEventListener('mousemove', e => {
+  const r = tiltCard.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width;
+  const y = (e.clientY - r.top) / r.height;
+  tiltCard.style.transform = `rotateX(${(y - .5) * -12}deg) rotateY(${(x - .5) * 12}deg)`;
+  tiltGlow.style.background = `radial-gradient(circle at ${x*100}% ${y*100}%, rgba(0,240,255,.08), transparent 60%)`;
+});
+tiltCard.addEventListener('mouseleave', () => { tiltCard.style.transform = 'none'; });
+
+// ============ CELL GLOW ============
+document.querySelectorAll('.hw-cell').forEach(cell => {
+  cell.addEventListener('mousemove', e => {
+    const r = cell.getBoundingClientRect();
+    cell.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    cell.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+
+// ============ PARALLAX AURORA ============
+document.addEventListener('mousemove', e => {
+  const x = (e.clientX / innerWidth - .5) * 30;
+  const y = (e.clientY / innerHeight - .5) * 30;
+  document.querySelectorAll('.aurora').forEach((el, i) => {
+    el.style.transform = `translate(${x*(i+1)*.4}px,${y*(i+1)*.4}px)`;
+  });
+});
+
+// ============ MOUSE PARTICLE BURST ============
+let lastBurst = 0;
+document.addEventListener('mousemove', e => {
+  if (Date.now() - lastBurst < 60) return;
+  lastBurst = Date.now();
+  for (let i = 0; i < 2; i++) {
+    const p = new P();
+    p.x = e.clientX; p.y = e.clientY;
+    p.vx = (Math.random() - .5) * 2;
+    p.vy = (Math.random() - .5) * 2;
+    p.r = Math.random() * 2;
+    p.o = .4;
+    particles.push(p);
+    if (particles.length > 150) particles.shift();
+  }
+});
+
+</script>
 </body>
 </html>
